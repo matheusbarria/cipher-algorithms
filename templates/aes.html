@@ -6,7 +6,7 @@
 </head>
 <body>
   <h2>AES Key Input</h2>
-  <form id="aesForm" method="POST">
+  <form id="aesForm" method="POST" enctype="multipart/form-data">
     <label for="key">Enter key:</label><br>
     <input type="text" id="key" name="key" required><br><br>
 
@@ -16,8 +16,31 @@
     <input type="radio" id="decrypt" name="action" value="decrypt">
     <label for="decrypt">Decrypt</label><br><br>
 
-    <label for="text">Enter text:</label><br>
-    <input type="text" id="text" name="text" required><br><br>
+    <!-- Dropdown for input mode selection -->
+    <label for="inputMode">Select Input Mode:</label><br>
+    <select id="inputMode" name="inputMode">
+      <option value="text">Enter Text</option>
+      <option value="image">Upload Image</option>
+      <option value ="file"> Upload File </option>
+    </select><br><br>
+
+    <!-- Div for text input -->
+    <div id="textInput">
+      <label for="text">Enter text:</label><br>
+      <input type="text" id="text" name="text"><br><br>
+    </div>
+
+    <!-- Div for image upload -->
+    <!-- <div id="imageInput" style="display: none;">
+      <label for="image_file">Upload an image:</label><br>
+      <input type="file" id="image_sub" name="image_sub" accept="image/png, image/jpeg"><br><br>
+    </div> -->
+
+    <!-- Div for file upload -->
+    <div id="fileInput" style="display: none;">
+      <label for="file_sub">Upload a file:</label><br>
+      <input type="file" id="file_sub" name="file_sub"><br><br>
+    </div>
 
     <input type="submit" value="Submit">
   </form>
@@ -25,6 +48,27 @@
   {% if values %}
     <h3>Result:</h3>
     <p>{{ values.result }}</p>
+    {% if values.file_name %}
+      <a href="{{ url_for('download_file', filename=values.file_name) }}">Download File</a>
+    {% endif %}
   {% endif %}
+
+
+  <script>
+    document.getElementById("inputMode").addEventListener("change", function() {
+      var mode = this.value;
+      var textInputDiv = document.getElementById("textInput");
+      var fileInputDiv = document.getElementById("fileInput");
+
+      if (mode === "text") {
+        textInputDiv.style.display = "block";
+        fileInputDiv.style.display = "none";
+      } else if (mode === "image" || mode === "file") {
+        textInputDiv.style.display = "none";
+        fileInputDiv.style.display = "block";
+      }
+    });
+  </script>
+
 </body>
 </html>
