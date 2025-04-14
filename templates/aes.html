@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AES Input Form</title>
+</head>
+<body>
+  <h2>AES Key Input</h2>
+  <form id="aesForm" method="POST">
+    <label for="key">Enter key:</label><br>
+    <input type="text" id="key" name="key" required><br><br>
+
+    <label>Choose action:</label><br>
+    <input type="radio" id="encrypt" name="action" value="encrypt" checked>
+    <label for="encrypt">Encrypt</label><br>
+    <input type="radio" id="decrypt" name="action" value="decrypt">
+    <label for="decrypt">Decrypt</label><br><br>
+
+    <label for="text">Enter text:</label><br>
+    <input type="text" id="text" name="text" required><br><br>
+
+    <input type="submit" value="Submit">
+  </form>
+
+  {% if values %}
+    <h3>Result:</h3>
+    <p>{{ values.result }}</p>
+  {% endif %}
+</body>
+</html>
