@@ -1,6 +1,35 @@
-<form action="/aes" method="GET">
-  <button type="submit">AES</button>
-</form>
-<form action="/3des" method="GET">
-  <button type="submit">3DES</button>
-</form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cipher Algorithms</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="/" class="logo">Cipher Algorithms</a>
+      <nav>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/aes">AES</a></li>
+          <li><a href="/3des">3DES</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <h2>Select an Encryption Algorithm</h2>
+    <p>Choose one of the following encryption algorithms to encrypt or decrypt your data:</p>
+
+    <div class="algorithm-buttons">
+      <form action="/aes" method="GET">
+        <button type="submit" class="algorithm-button">AES</button>
+      </form>
+      <form action="/3des" method="GET">
+        <button type="submit" class="algorithm-button">3DES</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

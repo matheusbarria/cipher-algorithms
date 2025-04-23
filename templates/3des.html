@@ -2,63 +2,103 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>3DES Input Form</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3DES Encryption</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <h2>Triple DES Encryption/Decryption</h2>
-    <form id="3desForm" method="POST" enctype="multipart/form-data">
-        <label for="key1">Enter key 1:</label><br>
-        <input type="text" id="key1" name="key1" required><br>
-        
-        <label for="key2">Enter key 2:</label><br>
-        <input type="text" id="key2" name="key2" required><br>
-        
-        <label for="key3">Enter key 3:</label><br>
-        <input type="text" id="key3" name="key3" required><br><br>
+    <div class="container">
+        <header>
+            <a href="/" class="logo">Cipher Algorithms</a>
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/aes">AES</a></li>
+                    <li><a href="/3des">3DES</a></li>
+                </ul>
+            </nav>
+        </header>
 
-        <label>Choose action:</label><br>
-        <input type="radio" id="encrypt" name="action" value="encrypt" checked>
-        <label for="encrypt">Encrypt</label><br>
-        <input type="radio" id="decrypt" name="action" value="decrypt">
-        <label for="decrypt">Decrypt</label><br><br>
+        <h2>Triple DES Encryption/Decryption</h2>
+        <form id="3desForm" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="key1">Enter key 1:</label>
+                <input type="text" id="key1" name="key1" required>
+            </div>
 
-        <label>Choose input type:</label><br>
-        <input type="radio" id="text" name="inputMode" value="text" checked>
-        <label for="text">Text</label><br>
-        <input type="radio" id="file" name="inputMode" value="file">
-        <label for="file">File</label><br>
-        <input type="radio" id="image" name="inputMode" value="image">
-        <label for="image">Image</label><br><br>
+            <div class="form-group">
+                <label for="key2">Enter key 2:</label>
+                <input type="text" id="key2" name="key2" required>
+            </div>
 
-        <!-- Div for text input -->
-        <div id="textInput">
-            <label for="text">Enter text:</label><br>
-            <textarea id="text" name="text" rows="4" cols="50"></textarea><br><br>
+            <div class="form-group">
+                <label for="key3">Enter key 3:</label>
+                <input type="text" id="key3" name="key3" required>
+            </div>
+
+            <div class="form-group">
+                <label>Choose action:</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="encrypt" name="action" value="encrypt" checked>
+                        <label for="encrypt">Encrypt</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="decrypt" name="action" value="decrypt">
+                        <label for="decrypt">Decrypt</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Choose input type:</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="text" name="inputMode" value="text" checked>
+                        <label for="text">Text</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="file" name="inputMode" value="file">
+                        <label for="file">File</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="image" name="inputMode" value="image">
+                        <label for="image">Image</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Div for text input -->
+            <div id="textInput" class="form-group">
+                <label for="text">Enter text:</label>
+                <textarea id="text" name="text" rows="4"></textarea>
+            </div>
+
+            <!-- Div for file upload -->
+            <div id="fileInput" class="form-group file-upload" style="display: none;">
+                <label for="file_sub">Upload a file:</label>
+                <input type="file" id="file_sub" name="file_sub">
+            </div>
+
+            <input type="submit" value="Submit">
+        </form>
+
+        {% if values %}
+        <div class="result-section">
+            <h3>Result:</h3>
+            <p>{{ values.result }}</p>
+            {% if values.file_name %}
+                <a href="{{ url_for('download_file', filename=values.file_name) }}" class="download-link">Download File</a>
+            {% endif %}
         </div>
-
-        <!-- Div for file upload -->
-        <div id="fileInput" style="display: none;">
-            <label for="file_sub">Upload a file:</label><br>
-            <input type="file" id="file_sub" name="file_sub"><br><br>
-        </div>
-
-        <input type="submit" value="Submit">
-    </form>
-
-    {% if values %}
-        <h3>Result:</h3>
-        <p>{{ values.result }}</p>
-        {% if values.file_name %}
-            <a href="{{ url_for('download_file', filename=values.file_name) }}">Download File</a>
         {% endif %}
-    {% endif %}
 
     <script>
         document.querySelectorAll('input[name="inputMode"]').forEach((radio) => {
             radio.addEventListener('change', (e) => {
                 const textDiv = document.getElementById('textInput');
                 const fileDiv = document.getElementById('fileInput');
-                
+
                 if (e.target.value === 'text') {
                     textDiv.style.display = 'block';
                     fileDiv.style.display = 'none';
@@ -69,5 +109,6 @@
             });
         });
     </script>
+    </div> <!-- Close container div -->
 </body>
 </html>

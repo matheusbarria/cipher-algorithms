@@ -31,23 +31,23 @@ def triple_des():
             key3 = request.form['key3']
             request_type = request.form['inputMode']
             action = request.form.get('action', 'encrypt')
-            
+
             if request_type == 'text':
                 text = request.form['text']
                 if action == 'encrypt':
-                    result = encrypt_data_3des(text.encode('utf-8'), 
-                                            key1.encode(), 
-                                            key2.encode(), 
+                    result = encrypt_data_3des(text.encode('utf-8'),
+                                            key1.encode(),
+                                            key2.encode(),
                                             key3.encode()).hex()
                 elif action == 'decrypt':
                     encrypted_bytes = bytes.fromhex(text)
-                    result = decrypt_data_3des(encrypted_bytes, 
-                                            key1.encode(), 
-                                            key2.encode(), 
+                    result = decrypt_data_3des(encrypted_bytes,
+                                            key1.encode(),
+                                            key2.encode(),
                                             key3.encode()).decode('utf-8')
                 else:
                     result = "Invalid action."
-                
+
                 values = {
                     'request_type': request_type,
                     'action': action,
@@ -56,25 +56,25 @@ def triple_des():
                     'key3': key3,
                     'result': result
                 }
-                
+
             elif request_type in ['file', 'image']:
                 file = request.files.get('file_sub')
                 filename = secure_filename(file.filename)
                 file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 file.save(file_path)
-                
+
                 if action == 'encrypt':
                     file_name = 'encrypted_' + filename.split('.')[0]
                     file_name_extension[file_name] = filename.split('.')[1]
                     output_path = os.path.join(app.config['DOWNLOAD_FOLDER'], file_name)
                     encrypt_file_3des(file_path, output_path, key1)
                 elif action == 'decrypt':
-                    extension = file_name_extension.get(filename.split('.')[0], 
+                    extension = file_name_extension.get(filename.split('.')[0],
                                                       'png' if request_type == 'image' else 'txt')
                     file_name = 'decrypted_' + filename.split('.')[0] + '.' + extension
                     output_path = os.path.join(app.config['DOWNLOAD_FOLDER'], file_name)
                     decrypt_file_3des(file_path, output_path, key1)
-                
+
                 values = {
                     'request_type': request_type,
                     'action': action,
@@ -85,7 +85,7 @@ def triple_des():
                     'output_path': output_path,
                     'file_name': file_name,
                 }
-            
+
             return render_template('3des.html', values=values)
         except ValueError as e:
             return f'Error: {e}'
@@ -112,7 +112,7 @@ def aes():
                     result = decrypt_text(text, key)
                 else:
                     result = "Invalid action."
-                
+
                 values = {
                     'request_type': request_type,
                     'action': action,
