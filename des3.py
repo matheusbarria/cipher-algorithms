@@ -266,7 +266,7 @@ def process_keys(key_string: str) -> Tuple[bytes, bytes, bytes]:
     return bytes(key1), bytes(key2), bytes(key3)
 
 
-def encrypt_data(data: bytes, key1: bytes, key2: bytes, key3: bytes) -> bytes:
+def encrypt_data_3des(data: bytes, key1: bytes, key2: bytes, key3: bytes) -> bytes:
     padded_data = pad_data(data)
     iv = os.urandom(8)
     result = bytearray(iv)  
@@ -282,7 +282,7 @@ def encrypt_data(data: bytes, key1: bytes, key2: bytes, key3: bytes) -> bytes:
     return bytes(result)
 
 
-def decrypt_data(data: bytes, key1: bytes, key2: bytes, key3: bytes) -> bytes:
+def decrypt_data_3des(data: bytes, key1: bytes, key2: bytes, key3: bytes) -> bytes:
     if len(data) < 8:
         raise ValueError("Data is too short to be valid 3DES encrypted data")
     iv = data[:8]
@@ -299,21 +299,21 @@ def decrypt_data(data: bytes, key1: bytes, key2: bytes, key3: bytes) -> bytes:
     return unpad_data(bytes(result))
 
 
-def encrypt_file(input_path: str, output_path: str, key_string: str):
+def encrypt_file_3des(input_path: str, output_path: str, key_string: str):
     key1, key2, key3 = process_keys(key_string)
     with open(input_path, 'rb') as f:
         data = f.read()
-    encrypted_data = encrypt_data(data, key1, key2, key3)
+    encrypted_data = encrypt_data_3des(data, key1, key2, key3)
     with open(output_path, 'wb') as f:
         f.write(encrypted_data)
 
 
-def decrypt_file(input_path: str, output_path: str, key_string: str):
+def decrypt_file_3des(input_path: str, output_path: str, key_string: str):
     key1, key2, key3 = process_keys(key_string)
     with open(input_path, 'rb') as f:
         data = f.read()
     try:
-        decrypted_data = decrypt_data(data, key1, key2, key3)
+        decrypted_data = decrypt_data_3des(data, key1, key2, key3)
     except Exception as e:
         print(f"Error decrypting file: {e}")
         return
@@ -337,7 +337,7 @@ def main():
         key = sys.argv[4]
         
         print(f"Encrypting {input_file} to {output_file}...")
-        encrypt_file(input_file, output_file, key)
+        encrypt_file_3des(input_file, output_file, key)
         print("Encryption complete!")
         
     elif mode == "decrypt" and len(sys.argv) >= 5:
@@ -346,7 +346,7 @@ def main():
         key = sys.argv[4]
         
         print(f"Decrypting {input_file} to {output_file}...")
-        decrypt_file(input_file, output_file, key)
+        decrypt_file_3des(input_file, output_file, key)
         print("Decryption complete!")
         
     elif mode == "text" and len(sys.argv) >= 4:
@@ -354,9 +354,9 @@ def main():
         key = sys.argv[3]
         print(sys.argv)
         key1, key2, key3 = process_keys(key)
-        encrypted = encrypt_data(message.encode('utf-8'), key1, key2, key3)
+        encrypted = encrypt_data_3des(message.encode('utf-8'), key1, key2, key3)
         print(f"Encrypted (hex): {encrypted.hex()}")
-        decrypted = decrypt_data(encrypted, key1, key2, key3)
+        decrypted = decrypt_data_3des(encrypted, key1, key2, key3)
         print(f"Decrypted: {decrypted.decode('utf-8')}")
         
     else:

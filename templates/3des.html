@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>3DES Input Form</title>
+</head>
+<body>
+    <h2>Triple DES Encryption/Decryption</h2>
+    <form id="3desForm" method="POST" enctype="multipart/form-data">
+        <label for="key1">Enter key 1:</label><br>
+        <input type="text" id="key1" name="key1" required><br>
+        
+        <label for="key2">Enter key 2:</label><br>
+        <input type="text" id="key2" name="key2" required><br>
+        
+        <label for="key3">Enter key 3:</label><br>
+        <input type="text" id="key3" name="key3" required><br><br>
+
+        <label>Choose action:</label><br>
+        <input type="radio" id="encrypt" name="action" value="encrypt" checked>
+        <label for="encrypt">Encrypt</label><br>
+        <input type="radio" id="decrypt" name="action" value="decrypt">
+        <label for="decrypt">Decrypt</label><br><br>
+
+        <label>Choose input type:</label><br>
+        <input type="radio" id="text" name="inputMode" value="text" checked>
+        <label for="text">Text</label><br>
+        <input type="radio" id="file" name="inputMode" value="file">
+        <label for="file">File</label><br>
+        <input type="radio" id="image" name="inputMode" value="image">
+        <label for="image">Image</label><br><br>
+
+        <!-- Div for text input -->
+        <div id="textInput">
+            <label for="text">Enter text:</label><br>
+            <textarea id="text" name="text" rows="4" cols="50"></textarea><br><br>
+        </div>
+
+        <!-- Div for file upload -->
+        <div id="fileInput" style="display: none;">
+            <label for="file_sub">Upload a file:</label><br>
+            <input type="file" id="file_sub" name="file_sub"><br><br>
+        </div>
+
+        <input type="submit" value="Submit">
+    </form>
+
+    {% if values %}
+        <h3>Result:</h3>
+        <p>{{ values.result }}</p>
+        {% if values.file_name %}
+            <a href="{{ url_for('download_file', filename=values.file_name) }}">Download File</a>
+        {% endif %}
+    {% endif %}
+
+    <script>
+        document.querySelectorAll('input[name="inputMode"]').forEach((radio) => {
+            radio.addEventListener('change', (e) => {
+                const textDiv = document.getElementById('textInput');
+                const fileDiv = document.getElementById('fileInput');
+                
+                if (e.target.value === 'text') {
+                    textDiv.style.display = 'block';
+                    fileDiv.style.display = 'none';
+                } else {
+                    textDiv.style.display = 'none';
+                    fileDiv.style.display = 'block';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

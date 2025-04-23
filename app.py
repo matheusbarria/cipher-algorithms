@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, send_from_directory
 from aes import encrypt_text, decrypt_text, encrypt_image, decrypt_image, encrypt_file, decrypt_file
+from des3 import encrypt_data_3des, decrypt_data_3des, encrypt_file_3des, decrypt_file_3des
 from werkzeug.utils import secure_filename
 import os
 
@@ -18,6 +19,81 @@ def download_file(filename):
 @app.route("/", methods=['GET', 'POST'])
 def home():
     return render_template('home.html')
+
+@app.route("/3des", methods=['GET', 'POST'])
+def triple_des():
+    if request.method == 'POST':
+        values = {}
+        try:
+            # Get all three keys
+            key1 = request.form['key1']
+            key2 = request.form['key2']
+            key3 = request.form['key3']
+            request_type = request.form['inputMode']
+            action = request.form.get('action', 'encrypt')
+            
+            if request_type == 'text':
+                text = request.form['text']
+                if action == 'encrypt':
+                    result = encrypt_data_3des(text.encode('utf-8'), 
+                                            key1.encode(), 
+                                            key2.encode(), 
+                                            key3.encode()).hex()
+                elif action == 'decrypt':
+                    encrypted_bytes = bytes.fromhex(text)
+                    result = decrypt_data_3des(encrypted_bytes, 
+                                            key1.encode(), 
+                                            key2.encode(), 
+                                            key3.encode()).decode('utf-8')
+                else:
+                    result = "Invalid action."
+                
+                values = {
+                    'request_type': request_type,
+                    'action': action,
+                    'key1': key1,
+                    'key2': key2,
+                    'key3': key3,
+                    'result': result
+                }
+                
+            elif request_type in ['file', 'image']:
+                file = request.files.get('file_sub')
+                filename = secure_filename(file.filename)
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(file_path)
+                
+                if action == 'encrypt':
+                    file_name = 'encrypted_' + filename.split('.')[0]
+                    file_name_extension[file_name] = filename.split('.')[1]
+                    output_path = os.path.join(app.config['DOWNLOAD_FOLDER'], file_name)
+                    encrypt_file_3des(file_path, output_path, key1)
+                elif action == 'decrypt':
+                    extension = file_name_extension.get(filename.split('.')[0], 
+                                                      'png' if request_type == 'image' else 'txt')
+                    file_name = 'decrypted_' + filename.split('.')[0] + '.' + extension
+                    output_path = os.path.join(app.config['DOWNLOAD_FOLDER'], file_name)
+                    decrypt_file_3des(file_path, output_path, key1)
+                
+                values = {
+                    'request_type': request_type,
+                    'action': action,
+                    'key1': key1,
+                    'key2': key2,
+                    'key3': key3,
+                    'result': f'{"Image" if request_type == "image" else "File"} {action}ed successfully to {output_path}',
+                    'output_path': output_path,
+                    'file_name': file_name,
+                }
+            
+            return render_template('3des.html', values=values)
+        except ValueError as e:
+            return f'Error: {e}'
+        except Exception as e:
+            return f'Error: {str(e)}'
+
+    return render_template('3des.html', values=None)
+
 
 @app.route("/aes", methods=['GET', 'POST'])
 def aes():
