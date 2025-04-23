@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AES Encryption</title>
+  <title>Vigenere Cipher</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
@@ -21,10 +21,10 @@
       </nav>
     </header>
 
-    <h2>AES Encryption/Decryption</h2>
-    <form id="aesForm" method="POST" enctype="multipart/form-data">
+    <h2>Vigenere Cipher Encryption/Decryption</h2>
+    <form id="vigenereForm" method="POST" enctype="multipart/form-data">
       <div class="form-group">
-        <label for="key">Enter key:</label>
+        <label for="key">Enter key (letters only):</label>
         <input type="text" id="key" name="key" required>
       </div>
 
@@ -43,24 +43,19 @@
       </div>
 
       <div class="form-group">
-        <label for="inputMode">Select Input Mode:</label>
-        <select id="inputMode" name="inputMode">
-          <option value="text">Enter Text</option>
-          <option value="image">Upload Image</option>
-          <option value="file">Upload File</option>
-        </select>
+        <label>Choose input type:</label>
+        <div class="radio-group">
+          <div class="radio-option">
+            <input type="radio" id="text" name="inputMode" value="text" checked>
+            <label for="text">Text</label>
+          </div>
+        </div>
       </div>
 
       <!-- Div for text input -->
       <div id="textInput" class="form-group">
         <label for="text">Enter text:</label>
         <textarea id="text" name="text" rows="4"></textarea>
-      </div>
-
-      <!-- Div for file upload -->
-      <div id="fileInput" class="form-group file-upload" style="display: none;">
-        <label for="file_sub">Upload a file:</label>
-        <input type="file" id="file_sub" name="file_sub">
       </div>
 
       <input type="submit" value="Submit">
@@ -70,28 +65,8 @@
     <div class="result-section">
       <h3>Result:</h3>
       <p>{{ values.result }}</p>
-      {% if values.file_name %}
-        <a href="{{ url_for('download_file', filename=values.file_name) }}" class="download-link">Download File</a>
-      {% endif %}
     </div>
     {% endif %}
-
-
-  <script>
-    document.getElementById("inputMode").addEventListener("change", function() {
-      var mode = this.value;
-      var textInputDiv = document.getElementById("textInput");
-      var fileInputDiv = document.getElementById("fileInput");
-
-      if (mode === "text") {
-        textInputDiv.style.display = "block";
-        fileInputDiv.style.display = "none";
-      } else if (mode === "image" || mode === "file") {
-        textInputDiv.style.display = "none";
-        fileInputDiv.style.display = "block";
-      }
-    });
-  </script>
   </div> <!-- Close container div -->
 </body>
 </html>
