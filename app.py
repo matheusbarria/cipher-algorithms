@@ -201,14 +201,15 @@ def rsa():
     if request.method == 'POST':
         values = {}
         try:
-            # Get prime numbers
-            p = int(request.form['p'])
-            q = int(request.form['q'])
+            # Get key parameters
             request_type = request.form['inputMode']
             action = request.form.get('action', 'encrypt')
-
-            # Create RSA instance
-            rsa_cipher = RSA(p, q)
+            
+            # Get the RSA key parameters
+            n = int(request.form['n'])
+            e = int(request.form['e'])
+            d = int(request.form['d'])
+            rsa_cipher = RSA(n, e, d)
 
             if request_type == 'text':
                 text = request.form['text']
@@ -222,8 +223,9 @@ def rsa():
                 values = {
                     'request_type': request_type,
                     'action': action,
-                    'p': p,
-                    'q': q,
+                    'n': n,
+                    'e': e,
+                    'd': d,
                     'result': result
                 }
 
@@ -248,8 +250,9 @@ def rsa():
                 values = {
                     'request_type': request_type,
                     'action': action,
-                    'p': p,
-                    'q': q,
+                    'n': n,
+                    'e': e,
+                    'd': d,
                     'result': f'{"Image" if request_type == "image" else "File"} {action}ed successfully to {output_path}',
                     'output_path': output_path,
                     'file_name': file_name,

@@ -1,28 +1,26 @@
-from math import gcd
 import os
 
 class RSA:
-    def __init__(self, p: int, q: int):
-        self.p = p
-        self.q = q
-        self.phi = (p - 1) * (q - 1)
-        self.n = p * q
-        self.e = 65537  # common public key
+    def __init__(self, n, e, d):
+        """
+        Initialize RSA cipher with n, e, and d keys directly
+        """
+        self.n = n
+        self.e = e
+        self.d = d
         
-        # check if e and phi are coprime
-        if gcd(self.e, self.phi) != 1:
-            raise ValueError("e and φ(n) are not coprime. Choose different prime values.")
+        # Validate the keys provided
+        # Simple test: encrypt and decrypt a test value
+        test_value = 42
+        if self._modexp(self._modexp(test_value, self.e, self.n), self.d, self.n) != test_value:
+            raise ValueError("Invalid key parameters: encryption/decryption test failed.")
             
-        # calculate private key d
-        self.d = self._modinv(self.e, self.phi)
-        
-        # finds how many bytes can be encrypted per message chunk 
+        # Find how many bytes can be encrypted per message chunk 
         self.block_size = (self.n.bit_length() - 1) // 8
         if self.block_size < 1:
-            raise ValueError("Prime values are too small; they make modulus too weak for encryption. Use larger primes.")
+            raise ValueError("Modulus is too small for encryption. Use larger values.")
     
     # Extended Euclidean Algorithm to find modular inverse of e 
-    # returns tuple where (gcd, x, y) 
     def _egcd(self, a, b):
         if a == 0:
             return (b, 0, 1)    
@@ -30,14 +28,14 @@ class RSA:
             gcd, y, x = self._egcd(b % a, a)
             return (gcd, x - (b // a) * y, y)
     
-    # calculate the modular inverse of a modular m  
+    # Calculate the modular inverse of a modular m  
     def _modinv(self, a, m):
         g, x, y = self._egcd(a, m)
         if g != 1:
             raise Exception("Modular inverse does not exist.")
         return x % m
     
-    # calculate base exp mod 
+    # Calculate base exp mod 
     def _modexp(self, base, exp, mod):
         result = 1
         base %= mod
@@ -48,8 +46,7 @@ class RSA:
             exp //= 2
         return result
     
-    # Encrypt binary data and return a list of (chunk_size, ecrypted_chunk) pairs 
-    # splits bytes object of data into chunks  
+    # Encrypt binary data and return a list of (chunk_size, encrypted_chunk) pairs 
     def encrypt_binary(self, data: bytes) -> list:
         chunks = []
         for i in range(0, len(data), self.block_size):
@@ -59,7 +56,7 @@ class RSA:
         encrypted_chunks = []
         
         for chunk in chunks:
-            chunk_size = len(chunk) # orig chunk length 
+            chunk_size = len(chunk)  # original chunk length 
             
             # Convert to integer
             m_int = int.from_bytes(chunk, byteorder='big')
@@ -72,7 +69,7 @@ class RSA:
         
         return encrypted_chunks
     
-    # decrypt a list of (chunk_size, encrypted_chunk) pairs
+    # Decrypt a list of (chunk_size, encrypted_chunk) pairs
     def decrypt_binary(self, encrypted_chunks: list) -> bytes:
         message_bytes = bytearray()
         
@@ -86,13 +83,13 @@ class RSA:
         
         return bytes(message_bytes)
     
-    # encrypt text
+    # Encrypt text
     def encrypt_text(self, message: str) -> str:
         encrypted_chunks = self.encrypt_binary(message.encode('utf-8'))
         # Convert to a string format with both size and value
         return ' '.join(f"{size}:{format(chunk, 'x')}" for size, chunk in encrypted_chunks)
     
-    # decrypt text 
+    # Decrypt text 
     def decrypt_text(self, encrypted_str: str) -> str:
         # Parse the size:value format
         parts = encrypted_str.strip().split()
@@ -112,15 +109,14 @@ class RSA:
         encrypted_chunks = self.encrypt_binary(data)
         
         with open(output_file, 'wb') as f:
-            f.write(len(encrypted_chunks).to_bytes(8, byteorder='big')) # Write the number of chunks
+            f.write(len(encrypted_chunks).to_bytes(8, byteorder='big'))  # Write the number of chunks
 
-            # find how many bytes needed for chunk size (1 byte is enough as it can't exceed block_size) &for encrypted values (based on modulus size)
+            # Find how many bytes needed for chunk size and for encrypted values
             chunk_value_bytes = (self.n.bit_length() + 7) // 8
             
             for chunk_size, chunk_value in encrypted_chunks:
                 f.write(chunk_size.to_bytes(1, byteorder='big'))    # write original chunk size (1 byte enough)
                 f.write(chunk_value.to_bytes(chunk_value_bytes, byteorder='big'))   # write the encrypted value
-
     
     def decrypt_file(self, input_file: str, output_file: str) -> None:
         """Decrypt a file and save the decrypted data"""
@@ -149,15 +145,16 @@ class RSA:
 
 def main():
     print("_____ RSA Encryption/Decryption ____")
-    print("Please enter your RSA prime numbers.")
-    #rsa = RSA(p=12553, q=13007)
+    print("Please enter your RSA key parameters.")
 
     try:
-        p = int(input("Enter prime number p: "))
-        q = int(input("Enter prime number q: "))
-        rsa = RSA(p, q)
-    except ValueError:
-        print("Invalid input: p and q must be integers.")
+        # Ask for the RSA parameters
+        n = int(input("Enter modulus n: "))
+        e = int(input("Enter public exponent e: "))
+        d = int(input("Enter private exponent d: "))
+        rsa = RSA(n, e, d)
+    except ValueError as ex:
+        print(f"Invalid input: {ex}")
         return
     except Exception as ex:
         print(f"Error during key calculation: {ex}")
@@ -212,7 +209,7 @@ def main():
                 print("\nDecrypted Text:")
                 print(decrypted)
             except Exception as e:
-                print(f" Decryption error: {e}")
+                print(f"Decryption error: {e}")
         elif mode in ("b", "c"):
             label = "image" if mode == "c" else "file"
             input_file = input(f"Enter the path to the encrypted {label}: ").strip()
@@ -228,7 +225,6 @@ def main():
 
     else:
         print("Invalid operation. Choose 1 or 2.")
-
 
 if __name__ == "__main__":
     main()
